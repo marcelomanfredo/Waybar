@@ -402,10 +402,21 @@ auto waybar::modules::Clock::get_calendar(const year_month_day& today, const yea
               data = g_utf8_find_next_char(data, end);
             }
           }
-          os << Glib::ustring::format(
-              (cldWPos_ != WS::LEFT || line == 0) ? std::left : std::right, std::setfill(L' '),
-              std::setw(cldMonColLen_ + ((line < 2) ? cldWnLen_ - wideCharCount : 0)),
-              calendarLine);
+
+          // Don't pad the first line if "mode == MONTH" or "mode-mon-col <= 1"
+          bool shouldPad = true;
+          if (cldMode_ == CldMode::MONTH || cldMonCols_ <= 1) {
+            shouldPad = false;
+          }
+
+          if (!shouldPad) {
+            os << calendarLine;
+          } else {
+            os << Glib::ustring::format(
+                (cldWPos_ != WS::LEFT || line == 0) ? std::left : std::right, std::setfill(L' '),
+                std::setw(cldMonColLen_ + ((line < 2) ? cldWnLen_ - wideCharCount : 0)),
+                calendarLine);
+          }
 
           // Week numbers on the right
           if (cldWPos_ == WS::RIGHT && line > 0) {
